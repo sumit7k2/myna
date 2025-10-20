@@ -3,7 +3,7 @@ import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { RootStackParamList, RootTabParamList, AuthStackParamList } from './types';
-import HomeScreen from '@/features/home/HomeScreen';
+import HomeTabs from '@/features/home/HomeTabs';
 import TopicsScreen from '@/features/topics/TopicsScreen';
 import NotificationsScreen from '@/features/notifications/NotificationsScreen';
 import ProfileScreen from '@/features/profile/ProfileScreen';
@@ -30,7 +30,7 @@ export const ONBOARDING_SCREENS = ['Onboarding'] as const;
 function RootTabs() {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Home" component={HomeTabs} />
       <Tab.Screen name="Topics" component={TopicsScreen} />
       <Tab.Screen
         name="ComposeTrigger"

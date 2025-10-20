@@ -41,6 +41,18 @@ export const handlers = [
     const newAccess = rotateAccessToken();
     return HttpResponse.json({ data: { refresh: { accessToken: newAccess } } });
   }),
+  graphql.mutation('SignUp', async ({ variables }) => {
+    await maybeDelay();
+    const { user } = getFixtures();
+    return HttpResponse.json({
+      data: {
+        signup: {
+          tokens: { accessToken, refreshToken },
+          user: { ...user, name: (variables as any)?.name || user.name }
+        }
+      }
+    });
+  }),
   graphql.query('Me', async () => {
     await maybeDelay();
     if (getScenario().name === 'serverError') {
@@ -98,6 +110,14 @@ export const handlers = [
     await maybeDelay();
     const { topics } = getFixtures();
     return HttpResponse.json({ data: { topics } });
+  }),
+  graphql.mutation('SaveUserTopics', async ({ variables }) => {
+    await maybeDelay();
+    // Persist selected topic ids
+    const ids = ((variables as any)?.topicIds as string[]) || [];
+    const { setUserSelectedTopicIds } = await import('../fixtures/topics');
+    setUserSelectedTopicIds(ids);
+    return HttpResponse.json({ data: { saveUserTopics: true } });
   }),
 
   // Collections

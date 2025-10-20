@@ -5,5 +5,9 @@ query GetTopics {
   }
 }
 
+mutation SaveUserTopics($topicIds: [ID!]!) {
+  saveUserTopics(topicIds: $topicIds)
+}
+
 # shared fragments
 # import from src/graphql/fragments.graphql

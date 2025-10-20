@@ -11,6 +11,18 @@ mutation Login($email: String!, $password: String!) {
   }
 }
 
+mutation SignUp($email: String!, $password: String!, $name: String!) {
+  signup(email: $email, password: $password, name: $name) {
+    tokens {
+      accessToken
+      refreshToken
+    }
+    user {
+      ...UserPreview
+    }
+  }
+}
+
 mutation Refresh($refreshToken: String!) {
   refresh(refreshToken: $refreshToken) {
     accessToken

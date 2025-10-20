@@ -1,6 +1,13 @@
+import { setupServer } from 'msw/native';
+import { handlers } from './handlers/graphql';
+
+let server: ReturnType<typeof setupServer> | null = null;
+
 export async function startWorker() {
-  // MSW service worker is web-only; on native, you can mock using custom Apollo links or interceptors.
+  if (server) return;
+  server = setupServer(...handlers);
+  server.listen({ onUnhandledRequest: 'bypass' });
   if (__DEV__) {
-    console.log('[MSW] Skipping worker on native platform.');
+    console.log('[MSW] Native server listening');
   }
 }

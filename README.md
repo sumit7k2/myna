@@ -77,7 +77,11 @@ npm run web
 
 ## MSW mocks
 
-Set `USE_MOCKS=true` in `.env` to enable MSW. In this scaffold, MSW is started only for web platform. On native, the mock startup is a no-op; you can add a custom Apollo link if needed.
+Offline-first development is enabled by default via MSW GraphQL mocks.
+
+- USE_MOCKS defaults to true in development and test, and can be overridden in `.env`.
+- Web uses msw/browser; Native (Expo) uses msw/native; Jest leverages msw/node; Detox leverages the native server.
+- See docs/mocks.md for details, scenarios, and test helpers.
 
 ## GraphQL + Codegen
 

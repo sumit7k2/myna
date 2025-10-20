@@ -1,0 +1,9 @@
+# Topics
+query GetTopics {
+  topics {
+    ...TopicItem
+  }
+}
+
+# shared fragments
+# import from src/graphql/fragments.graphql

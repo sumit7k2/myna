@@ -1,0 +1,20 @@
+# Notifications
+query GetNotifications($first: Int!, $after: String) {
+  notifications(first: $first, after: $after) {
+    edges {
+      cursor
+      node {
+        id
+        message
+        createdAt
+        read
+      }
+    }
+    pageInfo {
+      ...PageInfoFragment
+    }
+  }
+}
+
+# shared fragments
+# import from src/graphql/fragments.graphql

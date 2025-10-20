@@ -1,0 +1,21 @@
+# Collections
+query GetCollections {
+  collections {
+    id
+    name
+    posts(first: 10) {
+      edges {
+        cursor
+        node {
+          id
+        }
+      }
+      pageInfo {
+        ...PageInfoFragment
+      }
+    }
+  }
+}
+
+# shared fragments
+# import from src/graphql/fragments.graphql

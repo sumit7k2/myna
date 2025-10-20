@@ -1,0 +1,31 @@
+fragment UserPreview on User {
+  id
+  username
+  name
+  avatarUrl
+}
+
+fragment TopicItem on Topic {
+  id
+  name
+  slug
+}
+
+fragment PageInfoFragment on PageInfo {
+  hasNextPage
+  endCursor
+}
+
+fragment PostCard on Post {
+  id
+  content
+  createdAt
+  likesCount
+  viewerHasLiked
+  author {
+    ...UserPreview
+  }
+  topics {
+    ...TopicItem
+  }
+}

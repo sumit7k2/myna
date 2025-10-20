@@ -1,11 +1,114 @@
-type Post {
+scalar DateTime
+
+# Users
+ type User {
   id: ID!
-  author: String!
-  content: String!
+  username: String!
+  name: String!
+  avatarUrl: String
 }
 
-type Query {
-  posts: [Post!]!
+# Topics
+ type Topic {
+  id: ID!
+  name: String!
+  slug: String!
+}
+
+# Posts
+ type Post {
+  id: ID!
+  author: User!
+  content: String!
+  createdAt: DateTime!
+  likesCount: Int!
+  viewerHasLiked: Boolean!
+  topics: [Topic!]!
+}
+
+# Collections
+ type Collection {
+  id: ID!
+  name: String!
+  posts(after: String, first: Int): PostConnection!
+}
+
+# Notifications
+ type Notification {
+  id: ID!
+  message: String!
+  createdAt: DateTime!
+  read: Boolean!
+}
+
+# Pagination
+ type PageInfo {
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+ type PostEdge {
+  cursor: String!
+  node: Post!
+}
+
+ type PostConnection {
+  edges: [PostEdge!]!
+  pageInfo: PageInfo!
+}
+
+ type NotificationEdge {
+  cursor: String!
+  node: Notification!
+}
+
+ type NotificationConnection {
+  edges: [NotificationEdge!]!
+  pageInfo: PageInfo!
+}
+
+# Auth
+ type AuthTokens {
+  accessToken: String!
+  refreshToken: String!
+}
+
+ type AuthPayload {
+  tokens: AuthTokens!
+  user: User!
+}
+
+ type RefreshPayload {
+  accessToken: String!
+}
+
+# AI Rewrite
+ input RewriteInput {
+  content: String!
+  style: String
+}
+
+ type RewriteResult {
+  content: String!
+  confidence: Float!
+}
+
+# Root operations
+ type Query {
+  me: User
+  feed(after: String, first: Int): PostConnection!
   post(id: ID!): Post
-  hello: String
+  topics: [Topic!]!
+  collections: [Collection!]!
+  notifications(after: String, first: Int): NotificationConnection!
+  # Older sample query kept for compatibility
+  posts: [Post!]!
+}
+
+ type Mutation {
+  login(email: String!, password: String!): AuthPayload!
+  refresh(refreshToken: String!): RefreshPayload!
+  likePost(postId: ID!): Post!
+  createPost(content: String!, topicIds: [ID!]): Post!
+  rewritePost(input: RewriteInput!): RewriteResult!
 }

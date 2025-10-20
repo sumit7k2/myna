@@ -1,0 +1,7 @@
+# AI rewrite
+mutation RewritePost($input: RewriteInput!) {
+  rewritePost(input: $input) {
+    content
+    confidence
+  }
+}

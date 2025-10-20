@@ -107,8 +107,10 @@ scalar DateTime
 
  type Mutation {
   login(email: String!, password: String!): AuthPayload!
+  signup(email: String!, password: String!, name: String!): AuthPayload!
   refresh(refreshToken: String!): RefreshPayload!
+  saveUserTopics(topicIds: [ID!]!): Boolean!
   likePost(postId: ID!): Post!
   createPost(content: String!, topicIds: [ID!]): Post!
   rewritePost(input: RewriteInput!): RewriteResult!
-}
+ }

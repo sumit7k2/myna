@@ -1,10 +1,12 @@
-import { ROOT_TABS, ROOT_STACK_SCREENS } from '@/navigation/RootNavigator';
+import { ROOT_TABS, ROOT_STACK_SCREENS, AUTH_STACK_SCREENS, ONBOARDING_SCREENS } from '@/navigation/RootNavigator';
 import { linking, deepLinkPrefixes } from '@/navigation/linking';
 
 describe('Navigator tree', () => {
   it('matches snapshot for structure, tabs, and linking', () => {
     const shape = {
       rootStack: ROOT_STACK_SCREENS,
+      authStack: AUTH_STACK_SCREENS,
+      onboarding: ONBOARDING_SCREENS,
       tabs: ROOT_TABS,
       linking: {
         prefixes: deepLinkPrefixes,
@@ -13,10 +15,16 @@ describe('Navigator tree', () => {
     };
     expect(shape).toMatchInlineSnapshot(`
       Object {
+        "authStack": Array [
+          "Login",
+          "SignUp",
+        ],
         "linking": Object {
           "config": Object {
             "screens": Object {
               "Compose": "compose",
+              "Login": "login",
+              "Onboarding": "onboarding",
               "PostDetail": "post/:id",
               "RootTabs": Object {
                 "screens": Object {
@@ -27,6 +35,7 @@ describe('Navigator tree', () => {
                 },
               },
               "Settings": "settings",
+              "SignUp": "signup",
             },
           },
           "prefixes": Array [
@@ -34,6 +43,9 @@ describe('Navigator tree', () => {
             "https://expo-ts-starter.example",
           ],
         },
+        "onboarding": Array [
+          "Onboarding",
+        ],
         "rootStack": Array [
           "RootTabs",
           "Compose",

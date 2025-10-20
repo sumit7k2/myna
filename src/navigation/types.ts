@@ -5,6 +5,7 @@ export type RootStackParamList = {
   Compose: undefined;
   PostDetail: { id: string };
   Settings: undefined;
+  Onboarding: undefined;
 };
 
 export type RootTabParamList = {
@@ -13,6 +14,11 @@ export type RootTabParamList = {
   ComposeTrigger: undefined;
   Notifications: undefined;
   Profile: undefined;
+};
+
+export type AuthStackParamList = {
+  Login: undefined;
+  SignUp: undefined;
 };
 
 export type HomeTopTabParamList = {

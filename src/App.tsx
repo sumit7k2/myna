@@ -12,6 +12,7 @@ import { useThemeStore } from '@/state/theme';
 import { initSentry } from '@/lib/sentry';
 import { ENV } from '@/lib/env';
 import { startMocks } from '@/mocks';
+import { registerMockDevTools } from '@/mocks/devtools';
 
 initSentry();
 
@@ -22,6 +23,9 @@ export default function App() {
   useEffect(() => {
     if (ENV.USE_MOCKS) {
       startMocks();
+      if (__DEV__) {
+        registerMockDevTools();
+      }
     }
   }, []);
 

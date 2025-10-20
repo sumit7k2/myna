@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import type { ExpoConfig } from 'expo/config';
 
-const USE_MOCKS = process.env.USE_MOCKS === 'true';
+const USE_MOCKS = process.env.USE_MOCKS !== undefined ? process.env.USE_MOCKS === 'true' : process.env.NODE_ENV !== 'production';
 
 const config: ExpoConfig = {
   name: 'Expo TS Starter',

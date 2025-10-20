@@ -1,0 +1,23 @@
+# Post detail and mutations
+query GetPost($id: ID!) {
+  post(id: $id) {
+    ...PostCard
+  }
+}
+
+mutation LikePost($postId: ID!) {
+  likePost(postId: $postId) {
+    id
+    viewerHasLiked
+    likesCount
+  }
+}
+
+mutation CreatePost($content: String!, $topicIds: [ID!]) {
+  createPost(content: $content, topicIds: $topicIds) {
+    ...PostCard
+  }
+}
+
+# shared fragments
+# import from src/graphql/fragments.graphql

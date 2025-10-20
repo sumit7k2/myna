@@ -1,0 +1,27 @@
+# Auth operations
+mutation Login($email: String!, $password: String!) {
+  login(email: $email, password: $password) {
+    tokens {
+      accessToken
+      refreshToken
+    }
+    user {
+      ...UserPreview
+    }
+  }
+}
+
+mutation Refresh($refreshToken: String!) {
+  refresh(refreshToken: $refreshToken) {
+    accessToken
+  }
+}
+
+query Me {
+  me {
+    ...UserPreview
+  }
+}
+
+# shared fragments
+# import from src/graphql/fragments.graphql

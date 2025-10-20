@@ -1,0 +1,17 @@
+# Feed query
+query GetFeed($first: Int!, $after: String) {
+  feed(first: $first, after: $after) {
+    edges {
+      cursor
+      node {
+        ...PostCard
+      }
+    }
+    pageInfo {
+      ...PageInfoFragment
+    }
+  }
+}
+
+# shared fragments
+# import from src/graphql/fragments.graphql

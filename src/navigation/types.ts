@@ -10,6 +10,12 @@ export type RootStackParamList = {
 export type RootTabParamList = {
   Home: undefined;
   Topics: undefined;
+  ComposeTrigger: undefined;
   Notifications: undefined;
   Profile: undefined;
+};
+
+export type HomeTopTabParamList = {
+  Following: undefined;
+  ForYou: undefined;
 };

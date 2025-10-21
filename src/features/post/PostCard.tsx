@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, AccessibilityRole } from 'react-native';
 import { YStack, Paragraph, XStack, Button, SizableText } from 'tamagui';
 import { gql, useMutation } from '@apollo/client';
+import { useBookmarksStore } from '@/state/bookmarks';
 
 export type UserPreview = {
   id: string;
@@ -60,6 +61,9 @@ export function PostCard({ post, loading, onPress, accessibilityRole = 'button' 
 
   const label = `Post by ${post.author?.name ?? 'Unknown'}: ${post.content?.slice(0, 40)}`;
 
+  const isBookmarked = useBookmarksStore((s) => s.isBookmarked(post.id));
+  const toggleBookmark = useBookmarksStore((s) => s.toggleBookmark);
+
   return (
     <Pressable accessibilityRole={accessibilityRole} accessibilityLabel={label} onPress={onPress}>
       <YStack p="$3" bg="$bg" br="$2" mb="$2">
@@ -67,25 +71,35 @@ export function PostCard({ post, loading, onPress, accessibilityRole = 'button' 
         <Paragraph>{post.content}</Paragraph>
         <XStack ai="center" jc="space-between" mt="$2">
           <Paragraph accessibilityLabel={`Likes count ${post.likesCount}`}>{post.likesCount} likes</Paragraph>
-          <Button
-            size="$2"
-            accessibilityLabel={post.viewerHasLiked ? 'Unlike' : 'Like'}
-            onPress={() =>
-              likePost({
-                variables: { postId: post.id },
-                optimisticResponse: {
-                  likePost: {
-                    __typename: 'Post',
-                    id: post.id,
-                    viewerHasLiked: !post.viewerHasLiked,
-                    likesCount: post.likesCount + (post.viewerHasLiked ? -1 : 1)
+          <XStack gap="$2">
+            <Button
+              size="$2"
+              accessibilityLabel={post.viewerHasLiked ? 'Unlike' : 'Like'}
+              onPress={() =>
+                likePost({
+                  variables: { postId: post.id },
+                  optimisticResponse: {
+                    likePost: {
+                      __typename: 'Post',
+                      id: post.id,
+                      viewerHasLiked: !post.viewerHasLiked,
+                      likesCount: post.likesCount + (post.viewerHasLiked ? -1 : 1)
+                    }
                   }
-                }
-              })
-            }
-          >
-            {post.viewerHasLiked ? 'Unlike' : 'Like'}
-          </Button>
+                })
+              }
+            >
+              {post.viewerHasLiked ? 'Unlike' : 'Like'}
+            </Button>
+            <Button
+              size="$2"
+              testID={`bookmark-${post.id}`}
+              accessibilityLabel={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
+              onPress={() => toggleBookmark(post.id)}
+            >
+              {isBookmarked ? 'Bookmarked' : 'Bookmark'}
+            </Button>
+          </XStack>
         </XStack>
       </YStack>
     </Pressable>

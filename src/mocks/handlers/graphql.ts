@@ -255,6 +255,38 @@ export const handlers = [
       }
     });
   }),
+  graphql.mutation('CreateCollection', async ({ variables }) => {
+    await maybeDelay();
+    const { collections } = getFixtures();
+    const name = (variables as any)?.name as string;
+    const id = `c${collections.length + 1}`;
+    const newCol = { id, name, posts: [] as any[] };
+    collections.push(newCol as any);
+    return HttpResponse.json({
+      data: {
+        createCollection: { id, name, posts: toConnection([] as any, 10) }
+      }
+    });
+  }),
+  graphql.mutation('AddToCollection', async ({ variables }) => {
+    await maybeDelay();
+    const { collections, posts } = getFixtures();
+    const collectionId = (variables as any)?.collectionId as string;
+    const postId = (variables as any)?.postId as string;
+    const col = collections.find((c) => c.id === collectionId);
+    const post = posts.find((p) => p.id === postId);
+    if (!col || !post) {
+      return HttpResponse.json({ errors: [{ message: 'Not found' }] }, { status: 200 });
+    }
+    if (!col.posts.find((p) => p.id === post.id)) {
+      col.posts.push(post);
+    }
+    return HttpResponse.json({
+      data: {
+        addToCollection: { id: col.id, name: col.name, posts: toConnection(col.posts as any, 10) }
+      }
+    });
+  }),
 
   // Notifications
   graphql.query('GetNotifications', async ({ variables }) => {

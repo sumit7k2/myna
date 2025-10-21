@@ -7,13 +7,19 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { ApolloProvider } from '@apollo/client';
 import { apolloClient } from '@/lib/apollo';
-import { useColorScheme } from 'react-native';
+import { useColorScheme, Text, TextInput } from 'react-native';
 import { useThemeStore } from '@/state/theme';
 import { initSentry } from '@/lib/sentry';
 import { ENV } from '@/lib/env';
 import { startMocks } from '@/mocks';
 import { registerMockDevTools } from '@/mocks/devtools';
 import { startQueueProcessor, stopQueueProcessor } from '@/features/compose/offlineProcessor';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { reportStartupCompleted } from '@/lib/metrics';
+
+// Enable Dynamic Type by default for text inputs
+(Text as any).defaultProps = { ...(Text as any).defaultProps, allowFontScaling: true };
+(TextInput as any).defaultProps = { ...(TextInput as any).defaultProps, allowFontScaling: true };
 
 initSentry();
 
@@ -36,6 +42,11 @@ export default function App() {
     return () => stopQueueProcessor();
   }, []);
 
+  // Basic startup metrics
+  useEffect(() => {
+    reportStartupCompleted();
+  }, []);
+
   const themeName = themePref === 'system' ? sys || 'light' : themePref;
 
   return (
@@ -44,7 +55,9 @@ export default function App() {
         <Theme name={themeName}>
           <QueryClientProvider client={queryClient}>
             <ApolloProvider client={apolloClient}>
-              <RootNavigator />
+              <ErrorBoundary>
+                <RootNavigator />
+              </ErrorBoundary>
             </ApolloProvider>
           </QueryClientProvider>
         </Theme>

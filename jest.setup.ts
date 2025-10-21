@@ -37,6 +37,40 @@ jest.mock('expo-secure-store', () => {
   };
 });
 
+// Prevent any Sentry network calls during tests
+jest.mock('sentry-expo', () => {
+  const init = jest.fn();
+  const captureException = jest.fn();
+  const captureMessage = jest.fn();
+  const addBreadcrumb = jest.fn();
+  class ReactNavigationInstrumentation {
+    registerNavigationContainer() {}
+  }
+  class ReactNativeTracing {
+    constructor(_opts?: any) {}
+  }
+  return {
+    init,
+    Native: {
+      captureException,
+      captureMessage,
+      addBreadcrumb,
+      ReactNavigationInstrumentation,
+      ReactNativeTracing,
+    },
+  };
+});
+
+// Stub analytics libraries if present to avoid network in tests
+jest.mock('expo-analytics-segment', () => ({
+  Analytics: {
+    identify: jest.fn(),
+    track: jest.fn(),
+    screen: jest.fn(),
+    flush: jest.fn(),
+  },
+}));
+
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'bypass' });
 });

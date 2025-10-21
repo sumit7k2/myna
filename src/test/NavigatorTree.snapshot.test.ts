@@ -36,6 +36,7 @@ describe('Navigator tree', () => {
               },
               "Settings": "settings",
               "SignUp": "signup",
+              "UserProfile": "user/:username",
             },
           },
           "prefixes": Array [
@@ -50,6 +51,7 @@ describe('Navigator tree', () => {
           "RootTabs",
           "Compose",
           "PostDetail",
+          "UserProfile",
           "Settings",
         ],
         "tabs": Array [

@@ -47,7 +47,15 @@ export type Post = {
   replyRationale?: string | null;
 };
 export type Collection = { id: string; name: string; posts: Post[] };
-export type Notification = { id: string; message: string; createdAt: string; read: boolean };
+export type Notification = {
+  id: string;
+  message: string;
+  createdAt: string;
+  read: boolean;
+  type: 'LIKE' | 'COMMENT' | 'FOLLOW' | 'SYSTEM';
+  postId?: string | null;
+  username?: string | null;
+};
 
 export type Fixtures = {
   user: User;
@@ -103,12 +111,70 @@ export function makeCollections(posts: Post[]): Collection[] {
 }
 
 export function makeNotifications(count = 5): Notification[] {
-  return Array.from({ length: count }, (_, i) => ({
-    id: `n${i + 1}`,
-    message: i === 0 ? 'Welcome to the app!' : `User${i} liked your post` ,
-    createdAt: new Date(Date.now() - i * 86_400_000).toISOString(),
-    read: i % 2 === 0
-  }));
+  const list: Notification[] = [];
+  for (let i = 0; i < count; i++) {
+    const id = `n${i + 1}`;
+    if (i === 0) {
+      list.push({
+        id,
+        message: 'Welcome to the app!',
+        createdAt: new Date(Date.now() - i * 86_400_000).toISOString(),
+        read: true,
+        type: 'SYSTEM',
+        postId: null,
+        username: null
+      });
+      continue;
+    }
+    if (i === 1) {
+      list.push({
+        id,
+        message: 'Jane Doe followed you',
+        createdAt: new Date(Date.now() - i * 86_400_000).toISOString(),
+        read: false,
+        type: 'FOLLOW',
+        username: 'janedoe',
+        postId: null
+      });
+      continue;
+    }
+    if (i === 2) {
+      list.push({
+        id,
+        message: 'User2 liked your post',
+        createdAt: new Date(Date.now() - i * 86_400_000).toISOString(),
+        read: false,
+        type: 'LIKE',
+        postId: 'p1',
+        username: null
+      });
+      continue;
+    }
+    if (i === 3) {
+      list.push({
+        id,
+        message: 'User3 commented on your post',
+        createdAt: new Date(Date.now() - i * 86_400_000).toISOString(),
+        read: true,
+        type: 'COMMENT',
+        postId: 'p2',
+        username: null
+      });
+      continue;
+    }
+    // For remaining notifications, alternate types
+    const isEven = i % 2 === 0;
+    list.push({
+      id,
+      message: isEven ? `User${i} liked your post` : `User${i} followed you`,
+      createdAt: new Date(Date.now() - i * 86_400_000).toISOString(),
+      read: i % 3 === 0,
+      type: isEven ? 'LIKE' : 'FOLLOW',
+      postId: isEven ? 'p1' : null,
+      username: isEven ? null : 'janedoe'
+    });
+  }
+  return list;
 }
 
 function makeReply(i: number, postId: string, author: User): Reply {

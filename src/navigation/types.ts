@@ -4,6 +4,7 @@ export type RootStackParamList = {
   RootTabs: NavigatorScreenParams<RootTabParamList>;
   Compose: undefined;
   PostDetail: { id: string };
+  UserProfile: { username: string };
   Settings: undefined;
   Onboarding: undefined;
 };

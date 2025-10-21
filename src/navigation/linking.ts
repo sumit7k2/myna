@@ -20,6 +20,7 @@ export const linking: LinkingOptions<RootStackParamList> = {
       },
       Compose: 'compose',
       PostDetail: 'post/:id',
+      UserProfile: 'user/:username',
       Settings: 'settings',
       Onboarding: 'onboarding',
       // Auth screens can be deep-linked too

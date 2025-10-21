@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { RootStackParamList, RootTabParamList, AuthStackParamList } from './types';
+import { registerNavigationContainer, addBreadcrumb } from '@/lib/sentry';
 import HomeTabs from '@/features/home/HomeTabs';
 import TopicsScreen from '@/features/topics/TopicsScreen';
 import NotificationsScreen from '@/features/notifications/NotificationsScreen';
@@ -88,8 +89,29 @@ export default function RootNavigator() {
     };
   }, []);
 
+  const navigationRef = useRef<any>(null);
+  const routeNameRef = useRef<string | undefined>();
+
   return (
-    <NavigationContainer theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme} linking={linking}>
+    <NavigationContainer
+      ref={(ref) => {
+        navigationRef.current = ref;
+        if (ref) registerNavigationContainer(ref);
+      }}
+      onReady={() => {
+        routeNameRef.current = navigationRef.current?.getCurrentRoute?.()?.name;
+      }}
+      onStateChange={() => {
+        const previousRouteName = routeNameRef.current;
+        const currentRouteName = navigationRef.current?.getCurrentRoute?.()?.name;
+        if (currentRouteName && previousRouteName !== currentRouteName) {
+          addBreadcrumb({ category: 'navigation', message: currentRouteName, level: 'info' });
+        }
+        routeNameRef.current = currentRouteName;
+      }}
+      theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+      linking={linking}
+    >
       {!initialized ? (
         <Stack.Navigator>
           <Stack.Screen name="RootTabs" component={RootTabs} options={{ headerShown: false }} />

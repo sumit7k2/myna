@@ -35,7 +35,9 @@ Env variables consumed by the app (via `app.config.ts` -> `Constants.expoConfig.
 
 - `USE_MOCKS` ("true" | "false") — start MSW GraphQL mocks in development/web
 - `GRAPHQL_ENDPOINT` — your GraphQL endpoint
-- `SENTRY_DSN` — Sentry DSN (optional)
+- `SENTRY_DSN` — Sentry DSN (optional; when empty, Sentry is disabled)
+- `SENTRY_TRACES_SAMPLE_RATE` — Sentry traces sample rate (e.g. 0.2)
+- `SENTRY_PROFILES_SAMPLE_RATE` — Sentry profiles sample rate (e.g. 0.1)
 - `EAS_PROJECT_ID` — EAS project id
 - `SENTRY_ORG`, `SENTRY_PROJECT` — for the sentry-expo config plugin
 
@@ -104,7 +106,19 @@ Tips:
 
 ## Sentry
 
-Configure `SENTRY_DSN` in `.env` or project secrets. The `sentry-expo` config plugin is included in `app.config.ts`.
+This app integrates Sentry via `sentry-expo` with React Navigation routing instrumentation and performance tracing.
+
+- Enable by setting `SENTRY_DSN` in your `.env` (or project secrets). If `SENTRY_DSN` is empty or unset, Sentry stays completely disabled and safe no-ops are used.
+- Performance: `tracesSampleRate` defaults to 1.0 in development. You can override with `SENTRY_TRACES_SAMPLE_RATE` and enable profiling via `SENTRY_PROFILES_SAMPLE_RATE`.
+- Navigation: The root navigator registers Sentry's React Navigation instrumentation to capture route transitions as spans.
+- Config plugin: The `sentry-expo` config plugin is included in `app.config.ts` and uses `SENTRY_ORG` and `SENTRY_PROJECT` if provided.
+
+Testing:
+- Jest stubs Sentry in `jest.setup.ts` to avoid any network calls. CI is configured to run with `SENTRY_DSN` empty.
+
+Troubleshooting:
+- If you see build-time Sentry errors, ensure `SENTRY_ORG`/`SENTRY_PROJECT` are set when building with EAS, or leave them empty for local dev.
+- If performance spans are missing, check that `SENTRY_DSN` is set and that `SENTRY_TRACES_SAMPLE_RATE` is > 0.
 
 ## Testing
 

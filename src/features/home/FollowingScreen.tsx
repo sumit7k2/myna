@@ -1,10 +1,6 @@
 import React from 'react';
-import { YStack, Paragraph } from 'tamagui';
+import FeedList from '@/features/feed/FeedList';
 
 export default function FollowingScreen() {
-  return (
-    <YStack f={1} p="$4" gap="$3">
-      <Paragraph>Following feed is coming soon.</Paragraph>
-    </YStack>
-  );
+  return <FeedList testID="following-feed" feedType="following" />;
 }

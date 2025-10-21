@@ -4,7 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { TextInput } from 'react-native';
 import { gql, useMutation } from '@apollo/client';
 import splitIntoThreadParts from './splitIntoThreadParts';
-import { enqueue } from './offlineQueue';
+import { enqueue, getQueue, subscribe, cancel as cancelQueued, retry as retryQueued, type QueuedThread } from './offlineQueue';
 import { getItem, setItem } from '@/lib/storage';
 import { uploadToPresignedUrl } from './uploadAdapter';
 
@@ -42,6 +42,7 @@ export default function ComposeScreen() {
   const [media, setMedia] = useState<Attachment[]>([]);
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [queued, setQueued] = useState<QueuedThread[]>(() => getQueue());
   const [rewritePost, { loading: rewriting } ] = useMutation(REWRITE_POST);
 
   // Load draft on mount
@@ -53,6 +54,12 @@ export default function ComposeScreen() {
       setText(draft.text || '');
       setMedia(Array.isArray(draft.media) ? draft.media : []);
     }
+    const unsub = subscribe(() => {
+      setQueued(getQueue());
+    });
+    return () => {
+      unsub();
+    };
   }, []);
 
   // Persist draft on change
@@ -182,6 +189,44 @@ export default function ComposeScreen() {
       <YStack f={1} p="$4" gap="$3">
         <H2>Compose</H2>
         <Paragraph>Write something or add images. Limit {MAX_CHARS} characters. Media does not affect the limit.</Paragraph>
+
+        <YStack gap="$2" p="$2" bc="$backgroundStrong" br="$2">
+          <XStack ai="center" jc="space-between">
+            <Paragraph testID="queued-count">Queued posts: {queued.length}</Paragraph>
+            <XStack gap="$2">
+              {/* Buttons appear if there are items */}
+              {queued.some((q) => q.status === 'failed') ? (
+                <Button
+                  testID="retry-failed"
+                  size="$2"
+                  onPress={() => {
+                    queued.filter((q) => q.status === 'failed').forEach((q) => retryQueued(q.id));
+                  }}
+                >
+                  Retry failed
+                </Button>
+              ) : null}
+            </XStack>
+          </XStack>
+
+          {queued.length > 0 ? (
+            <YStack gap="$1">
+              {queued.map((q) => (
+                <XStack key={q.id} ai="center" jc="space-between">
+                  <Paragraph numberOfLines={1} ellipsizeMode="tail">
+                    {q.text.slice(0, 40)}{q.text.length > 40 ? '…' : ''} — {q.status}
+                  </Paragraph>
+                  <XStack gap="$2">
+                    {q.status === 'failed' ? (
+                      <Button testID={`retry-${q.id}`} size="$2" onPress={() => retryQueued(q.id)}>Retry</Button>
+                    ) : null}
+                    <Button testID={`cancel-${q.id}`} size="$2" variant="outlined" onPress={() => cancelQueued(q.id)}>Cancel</Button>
+                  </XStack>
+                </XStack>
+              ))}
+            </YStack>
+          ) : null}
+        </YStack>
 
         <TextInput
           testID="compose-input"

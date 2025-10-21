@@ -6,7 +6,11 @@ scalar DateTime
   username: String!
   name: String!
   avatarUrl: String
-}
+  bio: String
+  followersCount: Int!
+  followingCount: Int!
+  viewerIsFollowing: Boolean!
+ }
 
 # Topics
  type Topic {
@@ -122,6 +126,7 @@ scalar DateTime
 # Root operations
  type Query {
   me: User
+  user(username: String!): User
   feed(after: String, first: Int): PostConnection!
   post(id: ID!): Post
   topics: [Topic!]!
@@ -129,7 +134,7 @@ scalar DateTime
   notifications(after: String, first: Int): NotificationConnection!
   # Older sample query kept for compatibility
   posts: [Post!]!
-}
+ }
 
  type Mutation {
   login(email: String!, password: String!): AuthPayload!
@@ -141,4 +146,5 @@ scalar DateTime
   createPost(content: String!, topicIds: [ID!]): Post!
   createReply(postId: ID!, content: String!): Reply!
   rewritePost(input: RewriteInput!): RewriteResult!
+  toggleFollow(userId: ID!): User!
  }

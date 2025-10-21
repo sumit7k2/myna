@@ -4,6 +4,52 @@ import { toConnection } from '../fixtures/post';
 import { getFixtures, getScenario, maybeDelay } from '../fixtures/scenario';
 import { accessToken, refreshToken, rotateAccessToken } from '../fixtures/auth';
 
+type ProfileState = {
+  id: string;
+  username: string;
+  name: string;
+  avatarUrl?: string | null;
+  bio?: string | null;
+  followersCount: number;
+  followingCount: number;
+  viewerIsFollowing: boolean;
+};
+
+let profileMap: Record<string, ProfileState> = {};
+let lastScenarioName = getScenario().name;
+function ensureProfilesSeeded() {
+  const current = getScenario().name;
+  if (current !== lastScenarioName) {
+    profileMap = {};
+    lastScenarioName = current;
+  }
+  if (!profileMap['jdoe']) {
+    const { user } = getFixtures();
+    profileMap[user.username] = {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      avatarUrl: user.avatarUrl,
+      bio: `Bio for ${user.name}`,
+      followersCount: 256,
+      followingCount: 123,
+      viewerIsFollowing: false
+    };
+  }
+  if (!profileMap['janedoe']) {
+    profileMap['janedoe'] = {
+      id: 'u2',
+      username: 'janedoe',
+      name: 'Jane Doe',
+      avatarUrl: 'https://i.pravatar.cc/100?img=2',
+      bio: 'Hi, I am Jane',
+      followersCount: 100,
+      followingCount: 50,
+      viewerIsFollowing: false
+    };
+  }
+}
+
 export const handlers = [
   // Legacy sample
   graphql.query('GetPosts', async () => {
@@ -60,6 +106,40 @@ export const handlers = [
     }
     const { user } = getFixtures();
     return HttpResponse.json({ data: { me: user } });
+  }),
+
+  // Profiles
+  graphql.query('GetUser', async ({ variables }) => {
+    await maybeDelay();
+    ensureProfilesSeeded();
+    const username = (variables as any)?.username as string;
+    const profile = profileMap[username];
+    if (!profile) {
+      const id = `u-${username}`;
+      profileMap[username] = {
+        id,
+        username,
+        name: username,
+        avatarUrl: undefined,
+        bio: null,
+        followersCount: 0,
+        followingCount: 0,
+        viewerIsFollowing: false
+      } as any;
+    }
+    return HttpResponse.json({ data: { user: profileMap[username] } });
+  }),
+  graphql.mutation('ToggleFollow', async ({ variables }) => {
+    await maybeDelay();
+    ensureProfilesSeeded();
+    const userId = (variables as any)?.userId as string;
+    const profile = Object.values(profileMap).find((p) => p.id === userId);
+    if (!profile) {
+      return HttpResponse.json({ data: { toggleFollow: null } });
+    }
+    profile.viewerIsFollowing = !profile.viewerIsFollowing;
+    profile.followersCount += profile.viewerIsFollowing ? 1 : -1;
+    return HttpResponse.json({ data: { toggleFollow: profile } });
   }),
 
   // Feed

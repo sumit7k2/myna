@@ -13,6 +13,7 @@ import { initSentry } from '@/lib/sentry';
 import { ENV } from '@/lib/env';
 import { startMocks } from '@/mocks';
 import { registerMockDevTools } from '@/mocks/devtools';
+import { startQueueProcessor, stopQueueProcessor } from '@/features/compose/offlineProcessor';
 
 initSentry();
 
@@ -27,6 +28,12 @@ export default function App() {
         registerMockDevTools();
       }
     }
+  }, []);
+
+  // Start offline queue processor on app mount
+  useEffect(() => {
+    const stop = startQueueProcessor();
+    return () => stopQueueProcessor();
   }, []);
 
   const themeName = themePref === 'system' ? sys || 'light' : themePref;

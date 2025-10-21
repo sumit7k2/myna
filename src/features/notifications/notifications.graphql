@@ -8,6 +8,9 @@ query GetNotifications($first: Int!, $after: String) {
         message
         createdAt
         read
+        type
+        postId
+        username
       }
     }
     pageInfo {

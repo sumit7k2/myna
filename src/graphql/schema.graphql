@@ -64,11 +64,21 @@ scalar DateTime
  }
 
  # Notifications
+ enum NotificationType {
+  LIKE
+  COMMENT
+  FOLLOW
+  SYSTEM
+ }
+ 
  type Notification {
   id: ID!
   message: String!
   createdAt: DateTime!
   read: Boolean!
+  type: NotificationType!
+  postId: ID
+  username: String
  }
 
  # Pagination

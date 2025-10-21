@@ -6,7 +6,7 @@ import type { RootStackParamList, RootTabParamList, AuthStackParamList } from '.
 import HomeTabs from '@/features/home/HomeTabs';
 import TopicsScreen from '@/features/topics/TopicsScreen';
 import NotificationsScreen from '@/features/notifications/NotificationsScreen';
-import ProfileScreen from '@/features/profile/ProfileScreen';
+import ProfileScreen, { UserProfileView } from '@/features/profile/ProfileScreen';
 import ComposeScreen from '@/features/compose/ComposeScreen';
 import ComposeTriggerScreen from '@/features/compose/ComposeTriggerScreen';
 import PostDetailScreen from '@/features/post/PostDetailScreen';
@@ -23,7 +23,7 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
 export const ROOT_TABS = ['Home', 'Topics', 'ComposeTrigger', 'Notifications', 'Profile'] as const;
-export const ROOT_STACK_SCREENS = ['RootTabs', 'Compose', 'PostDetail', 'Settings'] as const;
+export const ROOT_STACK_SCREENS = ['RootTabs', 'Compose', 'PostDetail', 'UserProfile', 'Settings'] as const;
 export const AUTH_STACK_SCREENS = ['Login', 'SignUp'] as const;
 export const ONBOARDING_SCREENS = ['Onboarding'] as const;
 
@@ -105,6 +105,7 @@ export default function RootNavigator() {
           <Stack.Screen name="RootTabs" component={RootTabs} options={{ headerShown: false }} />
           <Stack.Screen name="Compose" component={ComposeScreen} options={{ presentation: 'modal', title: 'Compose' }} />
           <Stack.Screen name="PostDetail" component={PostDetailScreen} options={{ title: 'Post' }} />
+          <Stack.Screen name="UserProfile" component={({ route }) => <UserProfileView username={route.params.username} />} options={{ title: 'Profile' }} />
           <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
         </Stack.Navigator>
       )}

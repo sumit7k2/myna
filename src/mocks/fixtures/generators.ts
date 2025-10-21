@@ -9,7 +9,8 @@ export type ScenarioName =
   | 'authError'
   | 'serverError'
   | 'longFeed'
-  | 'slowNetwork';
+  | 'slowNetwork'
+  | 'limitedReplies';
 
 export type ScenarioConfig = {
   name: ScenarioName;
@@ -24,6 +25,15 @@ export type ScenarioConfig = {
 
 export type User = typeof sampleUser;
 export type Topic = { id: string; name: string; slug: string };
+export type Reply = {
+  id: string;
+  postId: string;
+  author: User;
+  content: string;
+  createdAt: string;
+  likesCount: number;
+  viewerHasLiked: boolean;
+};
 export type Post = {
   id: string;
   author: User;
@@ -32,6 +42,9 @@ export type Post = {
   likesCount: number;
   viewerHasLiked: boolean;
   topics: Topic[];
+  replyCount: number;
+  viewerCanReply: boolean;
+  replyRationale?: string | null;
 };
 export type Collection = { id: string; name: string; posts: Post[] };
 export type Notification = { id: string; message: string; createdAt: string; read: boolean };
@@ -40,6 +53,7 @@ export type Fixtures = {
   user: User;
   topics: Topic[];
   posts: Post[];
+  repliesByPost: Record<string, Reply[]>;
   collections: Collection[];
   notifications: Notification[];
 };
@@ -70,7 +84,10 @@ export function makePost(i: number, author: User, topics: Topic[]): Post {
     createdAt: new Date(Date.now() - i * 3600_000).toISOString(),
     likesCount: Math.floor(Math.random() * 100),
     viewerHasLiked: Math.random() < 0.3,
-    topics: [topics[i % topics.length]]
+    topics: [topics[i % topics.length]],
+    replyCount: 0,
+    viewerCanReply: true,
+    replyRationale: null
   };
 }
 
@@ -94,6 +111,18 @@ export function makeNotifications(count = 5): Notification[] {
   }));
 }
 
+function makeReply(i: number, postId: string, author: User): Reply {
+  return {
+    id: `r${postId}-${i + 1}`,
+    postId,
+    author,
+    content: `Reply ${i + 1} to ${postId}`,
+    createdAt: new Date(Date.now() - i * 1800_000).toISOString(),
+    likesCount: Math.floor(Math.random() * 20),
+    viewerHasLiked: Math.random() < 0.2
+  };
+}
+
 export function buildFixtures(config: ScenarioConfig): Fixtures {
   const user = config.name === 'newUser' ? makeUser({ id: 'u-new', username: 'newbie', name: 'New User' }) : makeUser();
   const topics = makeTopics(3);
@@ -101,10 +130,27 @@ export function buildFixtures(config: ScenarioConfig): Fixtures {
   const baseFeedSize = config.feedSize ?? (config.name === 'longFeed' ? 50 : 10);
   const posts = (config.flags?.emptyFeed || config.name === 'emptyFeed') ? [] : makeFeedPosts(baseFeedSize, user, topics);
 
+  // Generate some replies for the first few posts
+  const repliesByPost: Record<string, Reply[]> = {};
+  for (const p of posts) {
+    // 12 replies for the first, 3 for the second, 0 for others
+    const n = p.id === 'p1' ? 12 : p.id === 'p2' ? 3 : 0;
+    const replies: Reply[] = Array.from({ length: n }, (_, i) => makeReply(i, p.id, user));
+    repliesByPost[p.id] = replies;
+    p.replyCount = replies.length;
+    if (config.name === 'limitedReplies' && p.id === 'p1') {
+      p.viewerCanReply = false;
+      p.replyRationale = 'Only followers can reply';
+    } else {
+      p.viewerCanReply = true;
+      p.replyRationale = null;
+    }
+  }
+
   const notifications = (config.flags?.noNotifications || config.name === 'noNotifications') ? [] : makeNotifications(6);
   const collections = makeCollections(posts);
 
-  return { user, topics, posts, collections, notifications };
+  return { user, topics, posts, repliesByPost, collections, notifications };
 }
 
 export function toPostConnection(posts: Post[], first = 10, after?: string) {

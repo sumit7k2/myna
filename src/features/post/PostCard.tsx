@@ -70,7 +70,19 @@ export function PostCard({ post, loading, onPress, accessibilityRole = 'button' 
           <Button
             size="$2"
             accessibilityLabel={post.viewerHasLiked ? 'Unlike' : 'Like'}
-            onPress={() => likePost({ variables: { postId: post.id } })}
+            onPress={() =>
+              likePost({
+                variables: { postId: post.id },
+                optimisticResponse: {
+                  likePost: {
+                    __typename: 'Post',
+                    id: post.id,
+                    viewerHasLiked: !post.viewerHasLiked,
+                    likesCount: post.likesCount + (post.viewerHasLiked ? -1 : 1)
+                  }
+                }
+              })
+            }
           >
             {post.viewerHasLiked ? 'Unlike' : 'Like'}
           </Button>

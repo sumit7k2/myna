@@ -74,9 +74,14 @@ export const handlers = [
   // Post
   graphql.query('GetPost', async ({ variables }) => {
     await maybeDelay();
-    const { posts } = getFixtures();
+    const first = (variables as any)?.first ?? 10;
+    const after = (variables as any)?.after as string | undefined;
+    const { posts, repliesByPost } = getFixtures();
     const post = posts.find((p) => p.id === (variables as any)?.id);
-    return HttpResponse.json({ data: { post } });
+    const replies = post ? repliesByPost[post.id] ?? [] : [];
+    const connection = toConnection(replies as any, first, after);
+    const enriched = post ? { ...post, replies: connection } : null;
+    return HttpResponse.json({ data: { post: enriched } });
   }),
   graphql.mutation('LikePost', async ({ variables }) => {
     await maybeDelay();
@@ -87,6 +92,42 @@ export const handlers = [
       post.likesCount += post.viewerHasLiked ? 1 : -1;
     }
     return HttpResponse.json({ data: { likePost: post } });
+  }),
+  graphql.mutation('LikeReply', async ({ variables }) => {
+    await maybeDelay();
+    const { repliesByPost } = getFixtures();
+    const replyId = (variables as any)?.replyId as string;
+    let updated: any = null;
+    for (const arr of Object.values(repliesByPost)) {
+      const r = arr.find((x) => x.id === replyId);
+      if (r) {
+        r.viewerHasLiked = !r.viewerHasLiked;
+        r.likesCount += r.viewerHasLiked ? 1 : -1;
+        updated = r;
+        break;
+      }
+    }
+    return HttpResponse.json({ data: { likeReply: updated } });
+  }),
+  graphql.mutation('CreateReply', async ({ variables }) => {
+    await maybeDelay();
+    const { user, posts, repliesByPost } = getFixtures();
+    const postId = (variables as any)?.postId as string;
+    const content = (variables as any)?.content as string;
+    const now = new Date().toISOString();
+    const newReply = {
+      id: `r${postId}-${Math.random().toString(36).slice(2, 8)}`,
+      postId,
+      author: user,
+      content,
+      createdAt: now,
+      likesCount: 0,
+      viewerHasLiked: false
+    } as any;
+    repliesByPost[postId] = [newReply, ...(repliesByPost[postId] ?? [])];
+    const post = posts.find((p) => p.id === postId);
+    if (post) post.replyCount += 1;
+    return HttpResponse.json({ data: { createReply: newReply } });
   }),
   graphql.mutation('CreatePost', async ({ variables }) => {
     await maybeDelay();

@@ -24,48 +24,74 @@ scalar DateTime
   likesCount: Int!
   viewerHasLiked: Boolean!
   topics: [Topic!]!
-}
+  # New fields for post detail thread
+  replyCount: Int!
+  viewerCanReply: Boolean!
+  replyRationale: String
+  replies(after: String, first: Int): ReplyConnection!
+ }
 
-# Collections
+ # Replies
+ type Reply {
+  id: ID!
+  author: User!
+  content: String!
+  createdAt: DateTime!
+  likesCount: Int!
+  viewerHasLiked: Boolean!
+  postId: ID!
+ }
+
+ type ReplyEdge {
+  cursor: String!
+  node: Reply!
+ }
+
+ type ReplyConnection {
+  edges: [ReplyEdge!]!
+  pageInfo: PageInfo!
+ }
+
+ # Collections
  type Collection {
   id: ID!
   name: String!
   posts(after: String, first: Int): PostConnection!
-}
+ }
 
-# Notifications
+ # Notifications
  type Notification {
   id: ID!
   message: String!
   createdAt: DateTime!
   read: Boolean!
-}
+ }
 
-# Pagination
+ # Pagination
  type PageInfo {
   hasNextPage: Boolean!
   endCursor: String
-}
+ }
 
  type PostEdge {
   cursor: String!
   node: Post!
-}
+ }
 
  type PostConnection {
   edges: [PostEdge!]!
   pageInfo: PageInfo!
-}
+ }
 
  type NotificationEdge {
   cursor: String!
   node: Notification!
-}
+ }
 
  type NotificationConnection {
   edges: [NotificationEdge!]!
   pageInfo: PageInfo!
-}
+ }
 
 # Auth
  type AuthTokens {
@@ -111,6 +137,8 @@ scalar DateTime
   refresh(refreshToken: String!): RefreshPayload!
   saveUserTopics(topicIds: [ID!]!): Boolean!
   likePost(postId: ID!): Post!
+  likeReply(replyId: ID!): Reply!
   createPost(content: String!, topicIds: [ID!]): Post!
+  createReply(postId: ID!, content: String!): Reply!
   rewritePost(input: RewriteInput!): RewriteResult!
  }

@@ -6,6 +6,7 @@ import { YStack } from 'tamagui';
 import PostCard, { PostCardFragment } from '@/features/post/PostCard';
 import { useRecipeStore } from '@/state/recipe';
 import RecipeSlider from '@/features/feed/RecipeSlider';
+import { usePrefetchImages } from '@/hooks/prefetch';
 
 const GET_FEED = gql`
   query GetFeed($first: Int!, $after: String) {
@@ -44,6 +45,10 @@ export default function FeedList({ pageSize = 10, testID, feedType = 'forYou' }:
   const pageInfo = data?.feed?.pageInfo;
   const items: PostCardFragment[] = useMemo(() => edges.map((e: any) => e.node), [edges]);
   const ids = useMemo(() => items.map((i) => i.id), [items]);
+  const avatarUris = useMemo(() => items.map((i) => i.author?.avatarUrl).filter(Boolean) as string[], [items]);
+
+  // Prefetch author avatars to improve perceived scroll performance
+  usePrefetchImages(avatarUris);
 
   useEffect(() => {
     // keep a lightweight feed cache in zustand for offline hydration and slider
@@ -67,6 +72,10 @@ export default function FeedList({ pageSize = 10, testID, feedType = 'forYou' }:
     }
     setRefreshing(false);
   }, [refetch, pageSize, feedType]);
+
+  const renderItem = useCallback(({ item, index }: { item: PostCardFragment; index: number }) => (
+    <PostCard post={item} onPress={() => useRecipeStore.getState().openSlider(ids, index)} />
+  ), [ids]);
 
   // Skeleton list when first loading
   if (loading && items.length === 0) {
@@ -92,9 +101,7 @@ export default function FeedList({ pageSize = 10, testID, feedType = 'forYou' }:
         onEndReachedThreshold={0.8}
         onEndReached={onEndReached}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        renderItem={({ item, index }) => (
-          <PostCard post={item} onPress={() => useRecipeStore.getState().openSlider(ids, index)} />
-        )}
+        renderItem={renderItem}
       />
       <RecipeSlider />
     </YStack>

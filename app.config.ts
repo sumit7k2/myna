@@ -48,7 +48,9 @@ const config: ExpoConfig = {
     },
     USE_MOCKS,
     GRAPHQL_ENDPOINT: process.env.GRAPHQL_ENDPOINT ?? 'https://example.com/graphql',
-    SENTRY_DSN: process.env.SENTRY_DSN ?? ''
+    SENTRY_DSN: process.env.SENTRY_DSN ?? '',
+    SENTRY_TRACES_SAMPLE_RATE: process.env.SENTRY_TRACES_SAMPLE_RATE,
+    SENTRY_PROFILES_SAMPLE_RATE: process.env.SENTRY_PROFILES_SAMPLE_RATE
   }
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { YStack, H2, Paragraph, Button, Image as TImage, XStack, Separator, ScrollView } from 'tamagui';
+import { YStack, H2, Paragraph, Button, XStack, Separator, ScrollView } from 'tamagui';
 import * as ImagePicker from 'expo-image-picker';
 import { TextInput } from 'react-native';
 import { gql, useMutation } from '@apollo/client';
@@ -7,6 +7,7 @@ import splitIntoThreadParts from './splitIntoThreadParts';
 import { enqueue } from './offlineQueue';
 import { getItem, setItem } from '@/lib/storage';
 import { uploadToPresignedUrl } from './uploadAdapter';
+import CachedImage from '@/components/CachedImage';
 
 const DRAFT_KEY = 'compose.draft';
 const MAX_CHARS = 500;
@@ -231,7 +232,7 @@ export default function ComposeScreen() {
             <XStack gap="$2" fw="wrap">
               {media.map((m, i) => (
                 <YStack key={m.id} ai="center" gap="$2">
-                  <TImage source={{ uri: m.uri }} width={80} height={80} resizeMode="cover" />
+                  <CachedImage uri={m.uri} width={80} height={80} />
                   {typeof m.progress === 'number' ? (
                     <Paragraph testID={`upload-progress-${i}`}>{Math.round((m.progress || 0) * 100)}%</Paragraph>
                   ) : null}

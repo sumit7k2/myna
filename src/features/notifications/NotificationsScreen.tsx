@@ -88,6 +88,43 @@ export default function NotificationsScreen({ navigation }: Props) {
     fetchMore({ variables: { after: pageInfo?.endCursor, first: PAGE_SIZE } });
   }, [pageInfo?.hasNextPage, pageInfo?.endCursor, loading, fetchMore]);
 
+  const renderUnreadItem = useCallback(({ item }: { item: NotificationItem }) => (
+    <>
+      <Pressable accessibilityRole="button" accessibilityLabel={`Notification: ${item.message}`} onPress={() => onPressItem(item)}>
+        <YStack
+          testID={`notification-item-${item.id}`}
+          p="$2"
+          bg="$backgroundStrong"
+          br="$2"
+        >
+          <Paragraph>
+            {item.message}
+          </Paragraph>
+          <XStack ai="center" jc="space-between">
+            <Paragraph size="$2" opacity={0.6}>{new Date(item.createdAt).toLocaleString()}</Paragraph>
+            <Button testID={`mark-read-${item.id}`} size="$2" onPress={() => setLocallyRead((cur) => new Set(cur).add(item.id))}>Mark read</Button>
+          </XStack>
+        </YStack>
+      </Pressable>
+    </>
+  ), [onPressItem]);
+
+  const renderReadItem = useCallback(({ item }: { item: NotificationItem }) => (
+    <Pressable accessibilityRole="button" accessibilityLabel={`Notification: ${item.message}`} onPress={() => onPressItem(item)}>
+      <YStack
+        testID={`notification-item-${item.id}`}
+        p="$2"
+        bg="$bg"
+        br="$2"
+      >
+        <Paragraph>
+          {item.message}
+        </Paragraph>
+        <Paragraph size="$2" opacity={0.6}>{new Date(item.createdAt).toLocaleString()}</Paragraph>
+      </YStack>
+    </Pressable>
+  ), [onPressItem]);
+
   return (
     <YStack f={1} p="$4" gap="$3">
       <H2>Notifications</H2>
@@ -118,26 +155,7 @@ export default function NotificationsScreen({ navigation }: Props) {
             data={unread}
             keyExtractor={(item) => item.id}
             estimatedItemSize={56}
-            renderItem={({ item }) => (
-              <>
-                <Pressable onPress={() => onPressItem(item)}>
-                  <YStack
-                    testID={`notification-item-${item.id}`}
-                    p="$2"
-                    bg="$backgroundStrong"
-                    br="$2"
-                  >
-                    <Paragraph>
-                      {item.message}
-                    </Paragraph>
-                    <XStack ai="center" jc="space-between">
-                      <Paragraph size="$2" opacity={0.6}>{new Date(item.createdAt).toLocaleString()}</Paragraph>
-                      <Button testID={`mark-read-${item.id}`} size="$2" onPress={() => setLocallyRead((cur) => new Set(cur).add(item.id))}>Mark read</Button>
-                    </XStack>
-                  </YStack>
-                </Pressable>
-              </>
-            )}
+            renderItem={renderUnreadItem}
           />
         </YStack>
       ) : null}
@@ -149,21 +167,7 @@ export default function NotificationsScreen({ navigation }: Props) {
           data={read}
           keyExtractor={(item) => item.id}
           estimatedItemSize={56}
-          renderItem={({ item }) => (
-            <Pressable onPress={() => onPressItem(item)}>
-              <YStack
-                testID={`notification-item-${item.id}`}
-                p="$2"
-                bg="$bg"
-                br="$2"
-              >
-                <Paragraph>
-                  {item.message}
-                </Paragraph>
-                <Paragraph size="$2" opacity={0.6}>{new Date(item.createdAt).toLocaleString()}</Paragraph>
-              </YStack>
-            </Pressable>
-          )}
+          renderItem={renderReadItem}
         />
       </YStack>
 

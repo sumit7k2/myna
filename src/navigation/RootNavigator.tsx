@@ -17,6 +17,8 @@ import { useSessionStore } from '@/state/session';
 import LoginScreen from '@/features/auth/LoginScreen';
 import SignUpScreen from '@/features/auth/SignUpScreen';
 import OnboardingScreen from '@/features/onboarding/OnboardingScreen';
+import { navigationRef } from './ref';
+import { routingInstrumentation } from '@/lib/sentry';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -89,7 +91,12 @@ export default function RootNavigator() {
   }, []);
 
   return (
-    <NavigationContainer theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme} linking={linking}>
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => routingInstrumentation.registerNavigationContainer(navigationRef as any)}
+      theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+      linking={linking}
+    >
       {!initialized ? (
         <Stack.Navigator>
           <Stack.Screen name="RootTabs" component={RootTabs} options={{ headerShown: false }} />

@@ -2,6 +2,24 @@ import '@testing-library/jest-native/extend-expect';
 import { server } from '@/mocks/test/msw';
 import { setScenario } from '@/mocks/fixtures/scenario';
 
+// Stub Sentry so tests don't attempt to talk to native modules
+jest.mock('sentry-expo', () => {
+  const init = jest.fn();
+  const captureException = jest.fn();
+  class ReactNavigationInstrumentation {
+    registerNavigationContainer() {}
+  }
+  class ReactNativeTracing {
+    // @ts-ignore
+    constructor(opts?: any) { this.opts = opts; }
+  }
+  return {
+    init,
+    captureException,
+    Native: { captureException, ReactNavigationInstrumentation, ReactNativeTracing }
+  };
+});
+
 // In-memory mocks for native storage modules during tests
 jest.mock('react-native-mmkv', () => {
   const store = new Map<string, string>();

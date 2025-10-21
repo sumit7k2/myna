@@ -13,6 +13,7 @@ import { initSentry } from '@/lib/sentry';
 import { ENV } from '@/lib/env';
 import { startMocks } from '@/mocks';
 import { registerMockDevTools } from '@/mocks/devtools';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 initSentry();
 
@@ -37,7 +38,9 @@ export default function App() {
         <Theme name={themeName}>
           <QueryClientProvider client={queryClient}>
             <ApolloProvider client={apolloClient}>
-              <RootNavigator />
+              <ErrorBoundary>
+                <RootNavigator />
+              </ErrorBoundary>
             </ApolloProvider>
           </QueryClientProvider>
         </Theme>

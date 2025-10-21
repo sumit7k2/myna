@@ -140,7 +140,7 @@ scalar DateTime
   feed(after: String, first: Int): PostConnection!
   post(id: ID!): Post
   topics: [Topic!]!
-  collections: [Collection!]!
+  collections(userId: ID): [Collection!]!
   notifications(after: String, first: Int): NotificationConnection!
   # Older sample query kept for compatibility
   posts: [Post!]!
@@ -157,4 +157,7 @@ scalar DateTime
   createReply(postId: ID!, content: String!): Reply!
   rewritePost(input: RewriteInput!): RewriteResult!
   toggleFollow(userId: ID!): User!
+  # Collections management
+  createCollection(name: String!): Collection!
+  addToCollection(collectionId: ID!, postId: ID!): Collection!
  }
